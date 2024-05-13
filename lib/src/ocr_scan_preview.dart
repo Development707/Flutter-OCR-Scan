@@ -7,7 +7,9 @@ import 'package:ocr_scan/src/utils/coordinates_translator.dart';
 
 import 'ocr_scan_zone_painter.dart';
 
+/// Ocr scan preview
 class OcrScanPreview extends StatefulWidget {
+  /// Ocr scan preview
   const OcrScanPreview({
     super.key,
 
@@ -15,7 +17,7 @@ class OcrScanPreview extends StatefulWidget {
     this.enableAudio = false,
     this.controller,
     this.textRecognizer,
-    this.child,
+    this.children,
 
     /// OCR config
     this.ocrProcess = true,
@@ -24,21 +26,38 @@ class OcrScanPreview extends StatefulWidget {
     required this.onOcrTextLine,
   });
 
+  /// Enable audio
   final bool enableAudio;
-  final CameraController? controller;
-  final TextRecognizer? textRecognizer;
-  final Widget? child;
 
+  /// Camera controller
+  final CameraController? controller;
+
+  /// Text recognizer
+  final TextRecognizer? textRecognizer;
+
+  /// Child
+  final List<Widget>? children;
+
+  /// OCR process
   final bool ocrProcess;
+
+  /// OCR duration
   final Duration ocrDuration;
+
+  /// Ocr zone painter
   final OcrScanZonePainter ocrZonePainter;
+
+  /// On ocr result text line
+  /// - int: index
+  /// - List<TextLine>: List lines
   final ValueChanged<(int, List<TextLine>)>? onOcrTextLine;
 
   @override
-  State<OcrScanPreview> createState() => _OcrScanPreviewState();
+  State<OcrScanPreview> createState() => OcrScanPreviewState();
 }
 
-class _OcrScanPreviewState extends State<OcrScanPreview>
+/// Ocr scan preview
+class OcrScanPreviewState extends State<OcrScanPreview>
     with WidgetsBindingObserver {
   static List<CameraDescription> _cameras = [];
   CameraController? _controller;
@@ -54,6 +73,24 @@ class _OcrScanPreviewState extends State<OcrScanPreview>
   /// A text recognizer that recognizes text from a given [InputImage].
   TextRecognizer get textRecognizer {
     return widget.textRecognizer ?? (_textRecognizer ??= TextRecognizer());
+  }
+
+  /// Start ocr images from preview camera.
+  void startOcr() {
+    if (controller?.value.isInitialized ?? false) {
+      if (!controller!.value.isStreamingImages) {
+        controller?.startImageStream(_processImage);
+      }
+    }
+  }
+
+  /// Stop ocr images from preview camera.
+  void stopOcr() {
+    if (controller?.value.isInitialized ?? false) {
+      if (controller!.value.isStreamingImages) {
+        controller?.stopImageStream();
+      }
+    }
   }
 
   @override
@@ -73,15 +110,19 @@ class _OcrScanPreviewState extends State<OcrScanPreview>
   void didUpdateWidget(covariant OcrScanPreview oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.ocrProcess != widget.ocrProcess) {
-      if (controller?.value.isInitialized ?? false) {
-        if (widget.ocrProcess && !controller!.value.isStreamingImages) {
-          /// Start image stream
-          controller?.startImageStream(_processImage);
-        } else if (controller!.value.isStreamingImages) {
-          /// Stop image stream
-          controller?.stopImageStream();
-        }
+      if (widget.ocrProcess) {
+        /// Start image stream
+        startOcr();
+      } else if (controller!.value.isStreamingImages) {
+        /// Stop image stream
+        stopOcr();
       }
+    }
+    if (oldWidget.controller != widget.controller) {
+      final CameraController? oldController = oldWidget.controller;
+      _initialize().then((value) {
+        oldController?.dispose();
+      });
     }
   }
 
@@ -115,7 +156,7 @@ class _OcrScanPreviewState extends State<OcrScanPreview>
         fit: StackFit.expand,
         children: [
           CustomPaint(painter: widget.ocrZonePainter),
-          if (widget.child != null) widget.child!,
+          ...?widget.children,
         ],
       ),
     );
@@ -133,7 +174,7 @@ class _OcrScanPreviewState extends State<OcrScanPreview>
       }
     }
     if (_cameraIndex != -1 || widget.controller != null) {
-      _startLiveFeed(null);
+      await _startLiveFeed(null);
     }
   }
 
@@ -156,7 +197,7 @@ class _OcrScanPreviewState extends State<OcrScanPreview>
 
     /// Set size preview
     controller?.value = controller!.value.copyWith(
-      previewSize: widget.ocrZonePainter.imageSize,
+      previewSize: widget.ocrZonePainter.previewSize,
     );
 
     /// Initialize camera controller
@@ -181,7 +222,7 @@ class _OcrScanPreviewState extends State<OcrScanPreview>
       final InputImage? inputImage = _inputImageFromCameraImage(image);
       if (inputImage != null) {
         await Future.wait([
-          processTextRecognizer(inputImage),
+          _processTextRecognizer(inputImage),
           Future.delayed(widget.ocrDuration),
         ]);
       }
@@ -192,7 +233,7 @@ class _OcrScanPreviewState extends State<OcrScanPreview>
     }
   }
 
-  Future<void> processTextRecognizer(InputImage inputImage) async {
+  Future<void> _processTextRecognizer(InputImage inputImage) async {
     /// Process image
     final result = await textRecognizer.processImage(inputImage);
 
@@ -221,28 +262,28 @@ class _OcrScanPreviewState extends State<OcrScanPreview>
           final Rect boundingBox = Rect.fromLTRB(
             translateX(
               textLine.boundingBox.left,
-              ocrZonePainter.imageSize,
+              ocrZonePainter.previewSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
             translateY(
               textLine.boundingBox.top,
-              ocrZonePainter.imageSize,
+              ocrZonePainter.previewSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
             translateX(
               textLine.boundingBox.right,
-              ocrZonePainter.imageSize,
+              ocrZonePainter.previewSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
             translateY(
               textLine.boundingBox.bottom,
-              ocrZonePainter.imageSize,
+              ocrZonePainter.previewSize,
               imageSize,
               rotation,
               cameraLensDirection,

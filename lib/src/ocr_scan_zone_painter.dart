@@ -3,16 +3,21 @@ import 'package:ocr_scan/ocr_scan.dart';
 
 import 'utils/coordinates_translator.dart';
 
+/// Ocr scan zone
 class OcrScanZone {
+  /// Ocr scan zone
   const OcrScanZone(
     this.boundingBox, {
     this.boundingPaint = Rect.zero,
   });
 
+  /// Bounding paint
   final Rect boundingPaint;
 
+  /// Bounding box
   final Rect boundingBox;
 
+  /// Copy with
   OcrScanZone copyWith({
     Rect? boundingPaint,
     Rect? boundingBox,
@@ -24,23 +29,38 @@ class OcrScanZone {
   }
 }
 
+/// Ocr scan zone painter
 class OcrScanZonePainter extends CustomPainter with ChangeNotifier {
+  /// Ocr scan zone painter
   OcrScanZonePainter({
     required this.elements,
-    required this.imageSize,
-    required this.rotation,
-    required this.cameraLensDirection,
+    this.previewSize = const Size(1280, 720),
+    this.rotation = InputImageRotation.rotation0deg,
+    this.cameraLensDirection = CameraLensDirection.back,
     this.style = PaintingStyle.stroke,
     this.strokeWidth = 1.0,
     this.color = const Color(0x88000000),
   });
 
+  /// Elements to paint
   final List<OcrScanZone> elements;
-  final Size imageSize;
+
+  /// Image size
+  final Size previewSize;
+
+  /// Image rotation
   final InputImageRotation rotation;
+
+  /// Camera lens direction
   final CameraLensDirection cameraLensDirection;
+
+  /// Painting style
   final PaintingStyle style;
+
+  /// Stroke width
   final double strokeWidth;
+
+  /// Color
   final Color color;
 
   @override
@@ -58,28 +78,28 @@ class OcrScanZonePainter extends CustomPainter with ChangeNotifier {
         translateX(
           element.boundingBox.left,
           size,
-          imageSize,
+          previewSize,
           rotation,
           cameraLensDirection,
         ),
         translateY(
           element.boundingBox.top,
           size,
-          imageSize,
+          previewSize,
           rotation,
           cameraLensDirection,
         ),
         translateX(
           element.boundingBox.right,
           size,
-          imageSize,
+          previewSize,
           rotation,
           cameraLensDirection,
         ),
         translateY(
           element.boundingBox.bottom,
           size,
-          imageSize,
+          previewSize,
           rotation,
           cameraLensDirection,
         ),

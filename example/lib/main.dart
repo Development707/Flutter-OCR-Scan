@@ -20,9 +20,9 @@ class _MainAppState extends State<MainApp> {
         const Offset(80 / 2, 720 / 2 - 50) & const Size(1280 - 80, 100),
       ),
     ],
+    previewSize: const Size(1280, 720),
     rotation: InputImageRotation.rotation0deg,
     cameraLensDirection: CameraLensDirection.back,
-    imageSize: const Size(1280, 720),
     strokeWidth: 2,
     color: Colors.red,
   );

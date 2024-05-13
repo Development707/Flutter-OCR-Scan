@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 
+/// Translates the x-coordinate based on the canvasSize, imageSize, rotation, and cameraLensDirection.
 double translateX(
   double x,
   Size canvasSize,
@@ -32,6 +33,7 @@ double translateX(
   }
 }
 
+/// Translates the y-coordinate based on the canvas size, image size, rotation, and camera lens direction.
 double translateY(
   double y,
   Size canvasSize,
