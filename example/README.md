@@ -1,3 +1,3 @@
-# example
+# ocr_scan_example
 
-A new Flutter project.
+Demonstrates how to use the ocr_scan package.
