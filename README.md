@@ -1,1 +1,1 @@
-# orc_scan
+# ocr_scan
