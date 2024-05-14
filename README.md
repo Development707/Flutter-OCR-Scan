@@ -4,7 +4,7 @@
 
 OCR scan library for Flutter. It can scan text from zones in preview.
 
-![Demo](docs/demo.gif)
+![Demo](https://github.com/development707/ocr_scan_flutter/blob/main/docs/demo.gif)
 
 ## Requirements
 
@@ -65,7 +65,7 @@ Widget buildPreview(BuildContext context) {
 
 Contributions are always welcome!
 
-Please check out our [contribution guidelines](docs/CONTRIBUTING.md) for more details.
+Please check out our [contribution guidelines](https://github.com/development707/ocr_scan_flutter/blob/main/docs/CONTRIBUTING.md) for more details.
 
 ## License
 
