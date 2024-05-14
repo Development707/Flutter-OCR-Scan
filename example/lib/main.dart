@@ -17,7 +17,7 @@ class _MainAppState extends State<MainApp> {
   OcrScanZonePainter ocrZonePainter = OcrScanZonePainter(
     elements: [
       OcrScanZone(
-        const Offset(80 / 2, 720 / 2 - 50) & const Size(1280 - 80, 100),
+        const Offset(80 / 2, 200) & const Size(1280 - 80, 100),
       ),
     ],
     previewSize: const Size(1280, 720),

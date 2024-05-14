@@ -118,5 +118,7 @@ class OcrScanZonePainter extends CustomPainter with ChangeNotifier {
   void repaint() => notifyListeners();
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant OcrScanZonePainter oldDelegate) {
+    return oldDelegate.elements != elements;
+  }
 }

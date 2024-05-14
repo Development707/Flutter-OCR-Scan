@@ -93,6 +93,79 @@ class OcrScanPreviewState extends State<OcrScanPreview>
     }
   }
 
+  /// Processes the given [InputImage] for text recognition.
+  Future<void> processTextRecognizer(InputImage inputImage) async {
+    /// Process image
+    final result = await textRecognizer.processImage(inputImage);
+
+    /// Callback
+    if (widget.onOcrTextLine != null) {
+      /// Create lines
+      List<TextLine> lines = result.blocks.fold(<TextLine>[], (pre, e) {
+        return pre..addAll(e.lines);
+      });
+
+      /// Filter zones
+      final OcrScanZonePainter ocrZonePainter = widget.ocrZonePainter;
+
+      if (inputImage.metadata == null) return;
+      final Size imageSize = inputImage.metadata!.size;
+      final InputImageRotation rotation = inputImage.metadata!.rotation;
+
+      if (controller == null) return;
+      final cameraLensDirection = controller!.description.lensDirection;
+
+      for (int i = 0; i < ocrZonePainter.elements.length; i++) {
+        final OcrScanZone zone = ocrZonePainter.elements[i];
+        final List<TextLine> filtered = [];
+
+        for (TextLine textLine in lines) {
+          final Rect boundingBox = Rect.fromLTRB(
+            translateX(
+              textLine.boundingBox.left,
+              ocrZonePainter.previewSize,
+              imageSize,
+              rotation,
+              cameraLensDirection,
+            ),
+            translateY(
+              textLine.boundingBox.top,
+              ocrZonePainter.previewSize,
+              imageSize,
+              rotation,
+              cameraLensDirection,
+            ),
+            translateX(
+              textLine.boundingBox.right,
+              ocrZonePainter.previewSize,
+              imageSize,
+              rotation,
+              cameraLensDirection,
+            ),
+            translateY(
+              textLine.boundingBox.bottom,
+              ocrZonePainter.previewSize,
+              imageSize,
+              rotation,
+              cameraLensDirection,
+            ),
+          );
+
+          if (boundingBox.top < zone.boundingBox.top ||
+              boundingBox.bottom > zone.boundingBox.bottom ||
+              boundingBox.left < zone.boundingBox.left ||
+              boundingBox.right > zone.boundingBox.right) {
+            continue;
+          }
+
+          filtered.add(textLine);
+        }
+
+        widget.onOcrTextLine!.call((i, filtered));
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -222,7 +295,7 @@ class OcrScanPreviewState extends State<OcrScanPreview>
       final InputImage? inputImage = _inputImageFromCameraImage(image);
       if (inputImage != null) {
         await Future.wait([
-          _processTextRecognizer(inputImage),
+          processTextRecognizer(inputImage),
           Future.delayed(widget.ocrDuration),
         ]);
       }
@@ -233,79 +306,6 @@ class OcrScanPreviewState extends State<OcrScanPreview>
     }
   }
 
-  Future<void> _processTextRecognizer(InputImage inputImage) async {
-    /// Process image
-    final result = await textRecognizer.processImage(inputImage);
-
-    /// Callback
-    if (widget.onOcrTextLine != null) {
-      /// Create lines
-      List<TextLine> lines = result.blocks.fold(<TextLine>[], (pre, e) {
-        return pre..addAll(e.lines);
-      });
-
-      /// Filter zones
-      final OcrScanZonePainter ocrZonePainter = widget.ocrZonePainter;
-
-      if (inputImage.metadata == null) return;
-      final Size imageSize = inputImage.metadata!.size;
-      final InputImageRotation rotation = inputImage.metadata!.rotation;
-
-      if (controller == null) return;
-      final cameraLensDirection = controller!.description.lensDirection;
-
-      for (int i = 0; i < ocrZonePainter.elements.length; i++) {
-        final OcrScanZone zone = ocrZonePainter.elements[i];
-        final List<TextLine> filtered = [];
-
-        for (TextLine textLine in lines) {
-          final Rect boundingBox = Rect.fromLTRB(
-            translateX(
-              textLine.boundingBox.left,
-              ocrZonePainter.previewSize,
-              imageSize,
-              rotation,
-              cameraLensDirection,
-            ),
-            translateY(
-              textLine.boundingBox.top,
-              ocrZonePainter.previewSize,
-              imageSize,
-              rotation,
-              cameraLensDirection,
-            ),
-            translateX(
-              textLine.boundingBox.right,
-              ocrZonePainter.previewSize,
-              imageSize,
-              rotation,
-              cameraLensDirection,
-            ),
-            translateY(
-              textLine.boundingBox.bottom,
-              ocrZonePainter.previewSize,
-              imageSize,
-              rotation,
-              cameraLensDirection,
-            ),
-          );
-
-          if (boundingBox.top < zone.boundingBox.top ||
-              boundingBox.bottom > zone.boundingBox.bottom ||
-              boundingBox.left < zone.boundingBox.left ||
-              boundingBox.right > zone.boundingBox.right) {
-            continue;
-          }
-
-          filtered.add(textLine);
-        }
-
-        widget.onOcrTextLine!.call((i, filtered));
-      }
-    }
-  }
-
-  /// Convert [CameraImage] to [InputImage]
   InputImage? _inputImageFromCameraImage(CameraImage image) {
     if (controller == null) return null;
 

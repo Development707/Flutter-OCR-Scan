@@ -19,7 +19,7 @@ OcrScanPreview(
             const OcrScanZone(Rect.fromLTWH(0, 0, 1280, 100)),   // Zone1: Top center
             const OcrScanZone(Rect.fromLTWH(0, 620, 1280, 100)), // Zone2: Bottom center
         ],
-        imageSize: const Size(1280, 720),
+        previewSize: const Size(1280, 720),
         rotation: InputImageRotation.rotation0deg,
         cameraLensDirection: CameraLensDirection.back,
     ),
