@@ -9,6 +9,10 @@ class OcrScanZone {
   const OcrScanZone(
     this.boundingBox, {
     this.boundingPaint = Rect.zero,
+    this.text,
+    this.paintingStyle,
+    this.paintingStrokeWidth,
+    this.paintingColor,
   });
 
   /// Bounding paint
@@ -17,14 +21,34 @@ class OcrScanZone {
   /// Bounding box
   final Rect boundingBox;
 
+  /// Text
+  final InlineSpan? text;
+
+  /// Painting style
+  final PaintingStyle? paintingStyle;
+
+  /// Stroke width
+  final double? paintingStrokeWidth;
+
+  /// Painting color
+  final Color? paintingColor;
+
   /// Copy with
   OcrScanZone copyWith({
     Rect? boundingPaint,
     Rect? boundingBox,
+    InlineSpan? text,
+    PaintingStyle? paintingStyle,
+    double? paintingStrokeWidth,
+    Color? paintingColor,
   }) {
     return OcrScanZone(
       boundingBox ?? this.boundingBox,
       boundingPaint: boundingPaint ?? this.boundingPaint,
+      text: text ?? this.text,
+      paintingStyle: paintingStyle ?? this.paintingStyle,
+      paintingStrokeWidth: paintingStrokeWidth ?? this.paintingStrokeWidth,
+      paintingColor: paintingColor ?? this.paintingColor,
     );
   }
 }
@@ -65,53 +89,78 @@ class OcrScanZonePainter extends CustomPainter with ChangeNotifier {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
-      ..style = style
-      ..strokeWidth = strokeWidth
-      ..color = color;
+    final Paint paint = Paint();
+    final TextPainter textPainter = TextPainter(
+      textAlign: TextAlign.start,
+      textDirection: TextDirection.ltr,
+      textScaler: TextScaler.noScaling,
+      ellipsis: '\u2026',
+      maxLines: 1,
+    );
 
     for (int index = 0; index < elements.length; index++) {
       final OcrScanZone element = elements.elementAt(index);
 
+      /// Paint config
+      paint
+        ..style = element.paintingStyle ?? style
+        ..strokeWidth = element.paintingStrokeWidth ?? strokeWidth
+        ..color = element.paintingColor ?? color;
+
       /// Paint box
+      final Rect boundingBox = element.boundingBox;
       final Rect boundingPaint = Rect.fromLTRB(
         translateX(
-          element.boundingBox.left,
+          boundingBox.left,
           size,
           previewSize,
           rotation,
           cameraLensDirection,
         ),
         translateY(
-          element.boundingBox.top,
+          boundingBox.top,
           size,
           previewSize,
           rotation,
           cameraLensDirection,
         ),
         translateX(
-          element.boundingBox.right,
+          boundingBox.right,
           size,
           previewSize,
           rotation,
           cameraLensDirection,
         ),
         translateY(
-          element.boundingBox.bottom,
+          boundingBox.bottom,
           size,
           previewSize,
           rotation,
           cameraLensDirection,
         ),
       );
-
       canvas.drawRect(boundingPaint, paint);
+
+      /// Paint text
+      final InlineSpan? text = element.text;
+      if (text != null) {
+        textPainter
+          ..text = text
+          ..layout(maxWidth: boundingPaint.width)
+          ..paint(
+            canvas,
+            boundingPaint.topLeft -
+                Offset(paint.strokeWidth / 2, textPainter.height),
+          );
+      }
 
       /// Update element
       elements[index] = element.copyWith(
         boundingPaint: boundingPaint,
       );
     }
+
+    textPainter.dispose();
   }
 
   /// Repaint UI [CustomPainter]

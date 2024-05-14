@@ -20,7 +20,8 @@ class _MainAppState extends State<MainApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text('Ocr Scan Example')),
-        body: Builder(builder: buildPreviwew),
+        extendBody: true,
+        body: Builder(builder: buildPreview),
         bottomNavigationBar: BottomAppBar(
           child: ElevatedButton.icon(
             onPressed: () {
@@ -36,20 +37,32 @@ class _MainAppState extends State<MainApp> {
   }
 
   // #docregion OcrScanPreview
-  Widget buildPreviwew(BuildContext context) {
+  Widget buildPreview(BuildContext context) {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
 
     return OcrScanPreview(
-      ocrDuration: const Duration(milliseconds: 4000),
+      ocrDuration: const Duration(milliseconds: 5000),
       ocrProcess: ocrProcess,
       ocrZonePainter: OcrScanZonePainter(
-        elements: [
-          const OcrScanZone(Rect.fromLTWH(0, 200, 1280, 100)), // Zone1 TOP
-          const OcrScanZone(Rect.fromLTWH(0, 400, 1280, 100)), // Zone2 BOTTOM
+        elements: const [
+          OcrScanZone(
+            Rect.fromLTWH(40, 200, 1200, 100),
+            text: TextSpan(
+              text: 'Zone 1: TOP',
+              style: TextStyle(backgroundColor: Colors.red),
+            ),
+            paintingColor: Colors.red,
+          ), // Zone1 TOP
+          OcrScanZone(
+            Rect.fromLTWH(40, 400, 1200, 100),
+            text: TextSpan(
+              text: 'Zone 2: BOTTOM',
+              style: TextStyle(backgroundColor: Colors.green),
+            ),
+            paintingColor: Colors.green,
+          ),
         ],
         previewSize: const Size(1280, 720),
-        strokeWidth: 2,
-        color: Colors.red,
       ),
       onOcrTextLine: ((int, List<TextLine>) value) {
         messenger.showSnackBar(SnackBar(

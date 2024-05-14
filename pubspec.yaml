@@ -1,6 +1,6 @@
 name: ocr_scan
 description: "OCR scan library for Flutter. It can scan text form zones in preview."
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/Development707/orc_scan.git
 
 environment:

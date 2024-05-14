@@ -1,3 +1,7 @@
+## 0.0.4
+
+- Add paint text
+
 ## 0.0.3
 
 - Publish processTextRecognizer
