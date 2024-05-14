@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:ocr_scan/src/utils/coordinates_translator.dart';
 
@@ -60,6 +61,13 @@ class OcrScanPreview extends StatefulWidget {
 class OcrScanPreviewState extends State<OcrScanPreview>
     with WidgetsBindingObserver {
   static List<CameraDescription> _cameras = [];
+  static final _orientations = {
+    DeviceOrientation.portraitUp: 0,
+    DeviceOrientation.landscapeLeft: 90,
+    DeviceOrientation.portraitDown: 180,
+    DeviceOrientation.landscapeRight: 270,
+  };
+
   CameraController? _controller;
   TextRecognizer? _textRecognizer;
   int _cameraIndex = -1;
@@ -307,30 +315,49 @@ class OcrScanPreviewState extends State<OcrScanPreview>
   }
 
   InputImage? _inputImageFromCameraImage(CameraImage image) {
-    if (controller == null) return null;
+    if (_controller == null) return null;
 
-    /// Get camera rotation
-    final CameraDescription camera = controller!.description;
-    final InputImageRotation? rotation =
-        InputImageRotationValue.fromRawValue(camera.sensorOrientation);
+    // get image rotation
+    // it is used in android to convert the InputImage from Dart to Java: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/google_mlkit_commons/android/src/main/java/com/google_mlkit_commons/InputImageConverter.java
+    // `rotation` is not used in iOS to convert the InputImage from Dart to Obj-C: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/google_mlkit_commons/ios/Classes/MLKVisionImage%2BFlutterPlugin.m
+    // in both platforms `rotation` and `camera.lensDirection` can be used to compensate `x` and `y` coordinates on a canvas: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/example/lib/vision_detector_views/painters/coordinates_translator.dart
+    final camera = _cameras[_cameraIndex];
+    final sensorOrientation = camera.sensorOrientation;
+
+    InputImageRotation? rotation;
+    if (Platform.isIOS) {
+      rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
+    } else if (Platform.isAndroid) {
+      var rotationCompensation =
+          _orientations[_controller!.value.deviceOrientation];
+      if (rotationCompensation == null) return null;
+      if (camera.lensDirection == CameraLensDirection.front) {
+        // front-facing
+        rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
+      } else {
+        // back-facing
+        rotationCompensation =
+            (sensorOrientation - rotationCompensation + 360) % 360;
+      }
+      rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
+    }
     if (rotation == null) return null;
 
-    /// Get image format
-    /// Validate format depending on platform
-    /// only supported formats:
-    /// * nv21 for Android
-    /// * bgra8888 for iOS
-    final InputImageFormat? format =
-        InputImageFormatValue.fromRawValue(image.format.raw as int);
+    // get image format
+    final format = InputImageFormatValue.fromRawValue(image.format.raw);
+    // validate format depending on platform
+    // only supported formats:
+    // * nv21 for Android
+    // * bgra8888 for iOS
     if (format == null ||
         (Platform.isAndroid && format != InputImageFormat.nv21) ||
         (Platform.isIOS && format != InputImageFormat.bgra8888)) return null;
 
-    /// Since format is constraint to nv21 or bgra8888, both only have one plane
+    // since format is constraint to nv21 or bgra8888, both only have one plane
     if (image.planes.length != 1) return null;
-    final Plane plane = image.planes.first;
+    final plane = image.planes.first;
 
-    /// Compose InputImage using bytes
+    // compose InputImage using bytes
     return InputImage.fromBytes(
       bytes: plane.bytes,
       metadata: InputImageMetadata(
