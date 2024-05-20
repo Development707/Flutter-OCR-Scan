@@ -4,7 +4,7 @@
 
 OCR scan library for Flutter. It can scan text from zones in preview.
 
-![Demo](https://github.com/development707/ocr_scan_flutter/blob/main/docs/demo.gif)
+![Demo](./doc/demo.gif)
 
 ## Requirements
 
@@ -22,41 +22,67 @@ import 'package:ocr_scan/ocr_scan.dart';
 Widget buildPreview(BuildContext context) {
   final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
 
-  return OcrScanPreview(
-    ocrDuration: const Duration(milliseconds: 5000),
-    ocrProcess: ocrProcess,
-    ocrZonePainter: OcrScanZonePainter(
-      elements: const [
-        OcrScanZone(
-          Rect.fromLTWH(40, 200, 1200, 100),
-          text: TextSpan(
-            text: 'Zone 1: TOP',
-            style: TextStyle(backgroundColor: Colors.red),
+  return ScanPreview(
+    scanProcess: process,
+    scanDuration: const Duration(milliseconds: 2000 * 3),
+    textRecognizerConfig: TextRecognizerConfig(
+      scanZonePainter: OcrScanZonePainter(
+        elements: [
+          const Zone(
+            Rect.fromLTWH(40, 100, 1200, 100),
+            text: TextSpan(
+              text: 'Zone 1: TOP',
+              style: TextStyle(backgroundColor: Colors.red),
+            ),
+            paintingColor: Colors.red,
+          ), // Zone1 TOP
+          const Zone(
+            Rect.fromLTWH(40, 500, 1200, 100),
+            text: TextSpan(
+              text: 'Zone 2: BOTTOM',
+              style: TextStyle(backgroundColor: Colors.green),
+            ),
+            paintingColor: Colors.green,
           ),
-          paintingColor: Colors.red,
-        ), // Zone1 TOP
-        OcrScanZone(
-          Rect.fromLTWH(40, 400, 1200, 100),
-          text: TextSpan(
-            text: 'Zone 2: BOTTOM',
-            style: TextStyle(backgroundColor: Colors.green),
+        ],
+      ),
+      onTextLine: ((int, List<TextLine>) value) {
+        messenger.showSnackBar(SnackBar(
+          duration: const Duration(milliseconds: 2000),
+          content: Text(
+            value.$2.fold(
+              'Rect ${value.$1 + 1} - Length ${value.$2.length}:',
+              (String pre, TextLine e) => '$pre\n${e.text}',
+            ),
           ),
-          paintingColor: Colors.green,
-        ),
-      ],
-      previewSize: const Size(1280, 720),
+        ));
+      },
     ),
-    onOcrTextLine: ((int, List<TextLine>) value) {
-      messenger.showSnackBar(SnackBar(
-        duration: const Duration(milliseconds: 2000),
-        content: Text(
-          value.$2.fold(
-            'Rect ${value.$1 + 1} - Length ${value.$2.length}:',
-            (String pre, TextLine e) => '$pre\n${e.text}',
+    barcodeScannerConfig: BarcodeScannerConfig(
+      scanZonePainter: BarcodeScanZonePainter(
+        elements: [
+          const Zone(
+            Rect.fromLTWH(40, 250, 1200, 200),
+            text: TextSpan(
+              text: 'Zone 3: CENTER',
+              style: TextStyle(backgroundColor: Colors.yellow),
+            ),
+            paintingColor: Colors.yellow,
           ),
-        ),
-      ));
-    },
+        ],
+      ),
+      onBarcode: ((int, List<Barcode>) value) {
+        messenger.showSnackBar(SnackBar(
+          duration: const Duration(milliseconds: 2000),
+          content: Text(
+            value.$2.fold(
+              'Rect 3 - Length ${value.$2.length}:',
+              (String pre, Barcode e) => '$pre\n${e.displayValue}',
+            ),
+          ),
+        ));
+      },
+    ),
   );
 }
 ```
@@ -65,7 +91,7 @@ Widget buildPreview(BuildContext context) {
 
 Contributions are always welcome!
 
-Please check out our [contribution guidelines](https://github.com/development707/ocr_scan_flutter/blob/main/docs/CONTRIBUTING.md) for more details.
+Please check out our [contribution guidelines](https://github.com/development707/ocr_scan_flutter/blob/main/doc/CONTRIBUTING.md) for more details.
 
 ## License
 

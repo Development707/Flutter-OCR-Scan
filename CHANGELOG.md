@@ -1,3 +1,8 @@
+## 0.1.0
+
+- Refactor preview
+- Add barcode scanner
+
 ## 0.0.4
 
 - Add paint text
