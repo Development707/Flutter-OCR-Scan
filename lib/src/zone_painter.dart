@@ -132,10 +132,10 @@ abstract class ZonePainter extends CustomPainter with ChangeNotifier {
       element = elements[index];
 
       /// Paint
-      paintBox(canvas, element);
       if (element.text != null) {
         paintText(canvas, element);
       }
+      paintBox(canvas, element);
     }
   }
 

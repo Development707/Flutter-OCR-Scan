@@ -1,3 +1,7 @@
+## 0.1.2
+
+- Paint text before paint box
+
 ## 0.1.1
 
 - Export method mixin
