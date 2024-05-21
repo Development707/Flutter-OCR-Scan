@@ -93,25 +93,10 @@ abstract class ZonePainter extends CustomPainter with ChangeNotifier {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint();
-    final TextPainter textPainter = TextPainter(
-      textAlign: TextAlign.start,
-      textDirection: TextDirection.ltr,
-      textScaler: TextScaler.noScaling,
-      ellipsis: '\u2026',
-      maxLines: 1,
-    );
-
     for (int index = 0; index < elements.length; index++) {
-      final Zone element = elements.elementAt(index);
+      Zone element = elements.elementAt(index);
 
-      /// Paint config
-      paint
-        ..style = element.paintingStyle ?? style
-        ..strokeWidth = element.paintingStrokeWidth ?? strokeWidth
-        ..color = element.paintingColor ?? color;
-
-      /// Paint box
+      /// Update element
       final Rect boundingBox = element.boundingBox;
       final Rect boundingPaint = Rect.fromLTRB(
         translateX(
@@ -143,28 +128,51 @@ abstract class ZonePainter extends CustomPainter with ChangeNotifier {
           cameraLensDirection,
         ),
       );
-      canvas.drawRect(boundingPaint, paint);
+      elements[index] = element.copyWith(boundingPaint: boundingPaint);
+      element = elements[index];
 
-      /// Paint text
-      final InlineSpan? text = element.text;
-      if (text != null) {
-        textPainter
-          ..text = text
-          ..layout(maxWidth: boundingPaint.width)
-          ..paint(
-            canvas,
-            boundingPaint.topLeft -
-                Offset(paint.strokeWidth / 2, textPainter.height),
-          );
+      /// Paint
+      paintBox(canvas, element);
+      if (element.text != null) {
+        paintText(canvas, element);
       }
-
-      /// Update element
-      elements[index] = element.copyWith(
-        boundingPaint: boundingPaint,
-      );
     }
+  }
 
-    textPainter.dispose();
+  /// Paint box
+  @protected
+  void paintBox(Canvas canvas, Zone element) {
+    final Paint paint = Paint()
+      ..style = element.paintingStyle ?? style
+      ..strokeWidth = element.paintingStrokeWidth ?? strokeWidth
+      ..color = element.paintingColor ?? color;
+
+    canvas.drawRect(element.boundingPaint, paint);
+  }
+
+  /// Paint text
+  @protected
+  void paintText(Canvas canvas, Zone element) {
+    final TextPainter textPainter = TextPainter(
+      textAlign: TextAlign.start,
+      textDirection: TextDirection.ltr,
+      textScaler: TextScaler.noScaling,
+      ellipsis: '\u2026',
+      maxLines: 1,
+    )
+      ..text = element.text
+      ..layout(maxWidth: element.boundingPaint.width);
+
+    textPainter
+      ..paint(
+        canvas,
+        element.boundingPaint.topLeft -
+            Offset(
+              (element.paintingStrokeWidth ?? strokeWidth) / 2, // dx
+              textPainter.height, // dy
+            ),
+      )
+      ..dispose();
   }
 
   /// Repaint UI [CustomPainter]

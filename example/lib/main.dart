@@ -19,8 +19,7 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Ocr Scan Example')),
-      extendBody: true,
-      body: Builder(builder: buildPreview),
+      body: Center(child: Builder(builder: buildPreview)),
       bottomNavigationBar: buildBottomAppBar(),
     );
   }
