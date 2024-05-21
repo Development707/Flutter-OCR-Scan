@@ -3,6 +3,27 @@ import 'package:ocr_scan/ocr_scan.dart';
 
 import '../utils/coordinates_translator.dart';
 
+/// Text recognizer config
+class TextRecognizerConfig {
+  /// Text recognizer config
+  const TextRecognizerConfig({
+    this.textRecognizer,
+    this.scanZonePainter,
+    required this.onTextLine,
+  });
+
+  /// Text recognizer
+  final TextRecognizer? textRecognizer;
+
+  /// zone painter
+  final OcrScanZonePainter? scanZonePainter;
+
+  /// On ocr result text line
+  /// - int: index
+  /// - List<TextLine>: List lines
+  final ValueChanged<(int, List<TextLine>)>? onTextLine;
+}
+
 /// Text recognizer mixin
 mixin TextRecognizerMixin on ScanPreviewStateDelegate {
   TextRecognizer? _textRecognizer;

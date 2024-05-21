@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ocr_scan/ocr_scan.dart';
 
-import 'mixin/barcode_scanner_mixin.dart';
-import 'mixin/camera_mixin.dart';
-import 'mixin/text_recognizer_mixin.dart';
-
 ///  scan preview
 class ScanPreview extends StatefulWidget {
   ///  scan preview
@@ -100,13 +96,11 @@ class ScanPreviewState extends ScanPreviewStateDelegate
         children: [
           CustomPaint(
             painter: widget.textRecognizerConfig.scanZonePainter
-              ?..cameraLensDirection = controller.description.lensDirection
-              ..previewSize = widget.previewSize,
+              ?..configure(controller),
           ),
           CustomPaint(
             painter: widget.barcodeScannerConfig.scanZonePainter
-              ?..cameraLensDirection = controller.description.lensDirection
-              ..previewSize = widget.previewSize,
+              ?..configure(controller),
           ),
           ...?widget.children,
         ],

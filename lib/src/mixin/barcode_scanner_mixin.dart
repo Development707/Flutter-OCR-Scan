@@ -3,6 +3,27 @@ import 'package:ocr_scan/ocr_scan.dart';
 
 import '../utils/coordinates_translator.dart';
 
+/// Barcode scanner config
+class BarcodeScannerConfig {
+  /// Barcode scanner config
+  const BarcodeScannerConfig({
+    this.barcodeScanner,
+    this.scanZonePainter,
+    required this.onBarcode,
+  });
+
+  /// MLKit: Barcode scanner
+  final BarcodeScanner? barcodeScanner;
+
+  /// zone painter
+  final BarcodeScanZonePainter? scanZonePainter;
+
+  /// On ocr result barcode
+  /// - int: index
+  /// - List<Barcode>: List barcodes
+  final ValueChanged<(int, List<Barcode>)>? onBarcode;
+}
+
 /// Barcode scanner mixin.
 mixin BarcodeScannerMixin on ScanPreviewStateDelegate {
   BarcodeScanner? _barcodeScanner;
