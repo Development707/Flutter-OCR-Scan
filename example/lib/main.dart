@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ocr_scan/ocr_scan.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const MaterialApp(home: MainApp()));
 }
 
 class MainApp extends StatefulWidget {
@@ -13,30 +13,32 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  bool process = true;
+  bool process = false;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Ocr Scan Example')),
-        extendBody: true,
-        body: Builder(builder: buildPreview),
-        bottomNavigationBar: BottomAppBar(
-          child: ElevatedButton.icon(
-            onPressed: () {
-              process = !process;
-              setState(() {});
-            },
-            icon: const Icon(Icons.document_scanner),
-            label: Text(process ? 'Stop' : 'Start'),
-          ),
-        ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Ocr Scan Example')),
+      extendBody: true,
+      body: Builder(builder: buildPreview),
+      bottomNavigationBar: buildBottomAppBar(),
+    );
+  }
+
+  Widget buildBottomAppBar() {
+    return BottomAppBar(
+      child: ElevatedButton.icon(
+        onPressed: () {
+          process = !process;
+          setState(() {});
+        },
+        icon: const Icon(Icons.document_scanner),
+        label: Text(process ? 'Stop' : 'Start'),
       ),
     );
   }
 
-  // #docregion OcrScanPreview
+  // #docregion ScanPreview
   Widget buildPreview(BuildContext context) {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
 
@@ -103,5 +105,5 @@ class _MainAppState extends State<MainApp> {
       ),
     );
   }
-  // #enddocregion OcrScanPreview
+  // #enddocregion ScanPreview
 }

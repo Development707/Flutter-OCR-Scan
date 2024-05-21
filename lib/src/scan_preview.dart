@@ -34,6 +34,8 @@ class ScanPreview extends StatefulWidget {
   final bool enableAudio;
 
   /// Camera: Preview size
+  ///
+  /// Issue: https://github.com/flutter/flutter/issues/15953
   final Size previewSize;
 
   /// Camera: Camera lens direction

@@ -60,6 +60,11 @@ mixin CameraMixin on ScanPreviewStateDelegate {
         _stopScan();
       }
     }
+    if (oldWidget.previewSize != widget.previewSize) {
+      controller?.value = controller!.value.copyWith(
+        previewSize: widget.previewSize,
+      );
+    }
   }
 
   @override
@@ -114,6 +119,7 @@ mixin CameraMixin on ScanPreviewStateDelegate {
       setState(() {});
     });
 
+    /// Start scan
     if (widget.scanProcess) {
       _startScan();
     }
