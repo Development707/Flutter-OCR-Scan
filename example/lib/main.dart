@@ -50,18 +50,10 @@ class _MainAppState extends State<MainApp> {
             const Zone(
               Rect.fromLTWH(40, 100, 1200, 100),
               text: TextSpan(
-                text: 'Zone 1: TOP',
+                text: 'Zone: TextRecognizer',
                 style: TextStyle(backgroundColor: Colors.red),
               ),
               paintingColor: Colors.red,
-            ), // Zone1 TOP
-            const Zone(
-              Rect.fromLTWH(40, 500, 1200, 100),
-              text: TextSpan(
-                text: 'Zone 2: BOTTOM',
-                style: TextStyle(backgroundColor: Colors.green),
-              ),
-              paintingColor: Colors.green,
             ),
           ],
         ),
@@ -70,7 +62,7 @@ class _MainAppState extends State<MainApp> {
             duration: const Duration(milliseconds: 2000),
             content: Text(
               value.$2.fold(
-                'Rect ${value.$1 + 1} - Length ${value.$2.length}:',
+                'TextRecognizer - Length ${value.$2.length}:',
                 (String pre, TextLine e) => '$pre\n${e.text}',
               ),
             ),
@@ -79,14 +71,19 @@ class _MainAppState extends State<MainApp> {
       ),
       barcodeScannerConfig: BarcodeScannerConfig(
         zonePainter: ZonePainter(
+          rotation: InputImageRotation.rotation90deg,
           elements: [
-            const Zone(
-              Rect.fromLTWH(40, 250, 1200, 200),
-              text: TextSpan(
-                text: 'Zone 3: CENTER',
-                style: TextStyle(backgroundColor: Colors.yellow),
+            Zone(
+              Rect.fromCenter(
+                center: const Size(720, 1280).center(Offset.zero),
+                width: 400,
+                height: 400,
               ),
-              paintingColor: Colors.yellow,
+              text: const TextSpan(
+                text: 'Zone: BarcodeScanner',
+                style: TextStyle(backgroundColor: Colors.green),
+              ),
+              paintingColor: Colors.green,
             ),
           ],
         ),
@@ -95,7 +92,7 @@ class _MainAppState extends State<MainApp> {
             duration: const Duration(milliseconds: 2000),
             content: Text(
               value.$2.fold(
-                'Rect 3 - Length ${value.$2.length}:',
+                'BarcodeScanner - Length ${value.$2.length}:',
                 (String pre, Barcode e) => '$pre\n${e.displayValue}',
               ),
             ),

@@ -1,3 +1,7 @@
+## 0.2.0
+
+- Support rotation zone painter
+
 ## 0.1.3
 
 - Remove barcode and ocr painter

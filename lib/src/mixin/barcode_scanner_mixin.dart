@@ -30,7 +30,7 @@ mixin BarcodeScannerMixin on ScanPreviewStateDelegate {
 
   BarcodeScannerConfig get _config => widget.barcodeScannerConfig;
 
-  /// A text recognizer that recognizes text from a given [InputImage].
+  /// A barcode scanner that scans and decodes barcodes from a given [InputImage].
   BarcodeScanner get barcodeScanner {
     return _config.barcodeScanner ?? (_barcodeScanner ??= BarcodeScanner());
   }
@@ -60,44 +60,50 @@ mixin BarcodeScannerMixin on ScanPreviewStateDelegate {
 
       for (int i = 0; i < zonePainter.elements.length; i++) {
         final Zone zone = zonePainter.elements[i];
+        final Size zoneSize = switch (zonePainter.rotation) {
+          InputImageRotation.rotation0deg => zonePainter.previewSize,
+          InputImageRotation.rotation90deg => zonePainter.previewSize.flipped,
+          InputImageRotation.rotation180deg => zonePainter.previewSize,
+          InputImageRotation.rotation270deg => zonePainter.previewSize.flipped,
+        };
         final List<Barcode> filtered = [];
 
         for (Barcode barcode in result) {
-          final Rect boundingBox = Rect.fromLTRB(
+          final Rect barcodeRect = Rect.fromLTRB(
             translateX(
               barcode.boundingBox.left,
-              zonePainter.previewSize,
+              zoneSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
             translateY(
               barcode.boundingBox.top,
-              zonePainter.previewSize,
+              zoneSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
             translateX(
               barcode.boundingBox.right,
-              zonePainter.previewSize,
+              zoneSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
             translateY(
               barcode.boundingBox.bottom,
-              zonePainter.previewSize,
+              zoneSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
           );
 
-          if (boundingBox.top < zone.boundingBox.top ||
-              boundingBox.bottom > zone.boundingBox.bottom ||
-              boundingBox.left < zone.boundingBox.left ||
-              boundingBox.right > zone.boundingBox.right) {
+          if (barcodeRect.top < zone.boundingBox.top ||
+              barcodeRect.bottom > zone.boundingBox.bottom ||
+              barcodeRect.left < zone.boundingBox.left ||
+              barcodeRect.right > zone.boundingBox.right) {
             continue;
           }
 

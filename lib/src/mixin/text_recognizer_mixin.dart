@@ -64,44 +64,50 @@ mixin TextRecognizerMixin on ScanPreviewStateDelegate {
 
       for (int i = 0; i < zonePainter.elements.length; i++) {
         final Zone zone = zonePainter.elements[i];
+        final Size zoneSize = switch (zonePainter.rotation) {
+          InputImageRotation.rotation0deg => zonePainter.previewSize,
+          InputImageRotation.rotation90deg => zonePainter.previewSize.flipped,
+          InputImageRotation.rotation180deg => zonePainter.previewSize,
+          InputImageRotation.rotation270deg => zonePainter.previewSize.flipped,
+        };
         final List<TextLine> filtered = [];
 
         for (TextLine textLine in lines) {
-          final Rect boundingBox = Rect.fromLTRB(
+          final Rect textLineRect = Rect.fromLTRB(
             translateX(
               textLine.boundingBox.left,
-              zonePainter.previewSize,
+              zoneSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
             translateY(
               textLine.boundingBox.top,
-              zonePainter.previewSize,
+              zoneSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
             translateX(
               textLine.boundingBox.right,
-              zonePainter.previewSize,
+              zoneSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
             translateY(
               textLine.boundingBox.bottom,
-              zonePainter.previewSize,
+              zoneSize,
               imageSize,
               rotation,
               cameraLensDirection,
             ),
           );
 
-          if (boundingBox.top < zone.boundingBox.top ||
-              boundingBox.bottom > zone.boundingBox.bottom ||
-              boundingBox.left < zone.boundingBox.left ||
-              boundingBox.right > zone.boundingBox.right) {
+          if (textLineRect.top < zone.boundingBox.top ||
+              textLineRect.bottom > zone.boundingBox.bottom ||
+              textLineRect.left < zone.boundingBox.left ||
+              textLineRect.right > zone.boundingBox.right) {
             continue;
           }
 
