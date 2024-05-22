@@ -95,11 +95,11 @@ class ScanPreviewState extends ScanPreviewStateDelegate
         fit: StackFit.expand,
         children: [
           CustomPaint(
-            painter: widget.textRecognizerConfig.scanZonePainter
+            painter: widget.textRecognizerConfig.zonePainter
               ?..configure(controller),
           ),
           CustomPaint(
-            painter: widget.barcodeScannerConfig.scanZonePainter
+            painter: widget.barcodeScannerConfig.zonePainter
               ?..configure(controller),
           ),
           ...?widget.children,

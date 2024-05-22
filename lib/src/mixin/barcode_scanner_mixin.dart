@@ -8,7 +8,7 @@ class BarcodeScannerConfig {
   /// Barcode scanner config
   const BarcodeScannerConfig({
     this.barcodeScanner,
-    this.scanZonePainter,
+    this.zonePainter,
     required this.onBarcode,
   });
 
@@ -16,7 +16,7 @@ class BarcodeScannerConfig {
   final BarcodeScanner? barcodeScanner;
 
   /// zone painter
-  final BarcodeScanZonePainter? scanZonePainter;
+  final ZonePainter? zonePainter;
 
   /// On ocr result barcode
   /// - int: index
@@ -43,7 +43,7 @@ mixin BarcodeScannerMixin on ScanPreviewStateDelegate {
 
   @override
   Future<void> processBarcodeScanner(InputImage inputImage) async {
-    final BarcodeScanZonePainter? zonePainter = _config.scanZonePainter;
+    final ZonePainter? zonePainter = _config.zonePainter;
     if (zonePainter == null) return;
 
     /// Process image

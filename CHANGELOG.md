@@ -1,3 +1,7 @@
+## 0.1.3
+
+- Remove barcode and ocr painter
+
 ## 0.1.2
 
 - Paint text before paint box

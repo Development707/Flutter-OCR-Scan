@@ -54,7 +54,7 @@ class Zone {
 }
 
 /// Zone painter
-abstract class ZonePainter extends CustomPainter with ChangeNotifier {
+class ZonePainter extends CustomPainter with ChangeNotifier {
   /// Zone painter
   ZonePainter({
     required this.elements,

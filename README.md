@@ -26,7 +26,7 @@ Widget buildPreview(BuildContext context) {
     scanProcess: process,
     scanDuration: const Duration(milliseconds: 2000 * 3),
     textRecognizerConfig: TextRecognizerConfig(
-      scanZonePainter: OcrScanZonePainter(
+      zonePainter: ZonePainter(
         elements: [
           const Zone(
             Rect.fromLTWH(40, 100, 1200, 100),
@@ -59,7 +59,7 @@ Widget buildPreview(BuildContext context) {
       },
     ),
     barcodeScannerConfig: BarcodeScannerConfig(
-      scanZonePainter: BarcodeScanZonePainter(
+      zonePainter: ZonePainter(
         elements: [
           const Zone(
             Rect.fromLTWH(40, 250, 1200, 200),

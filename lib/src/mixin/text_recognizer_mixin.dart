@@ -8,7 +8,7 @@ class TextRecognizerConfig {
   /// Text recognizer config
   const TextRecognizerConfig({
     this.textRecognizer,
-    this.scanZonePainter,
+    this.zonePainter,
     required this.onTextLine,
   });
 
@@ -16,7 +16,7 @@ class TextRecognizerConfig {
   final TextRecognizer? textRecognizer;
 
   /// zone painter
-  final OcrScanZonePainter? scanZonePainter;
+  final ZonePainter? zonePainter;
 
   /// On ocr result text line
   /// - int: index
@@ -43,7 +43,7 @@ mixin TextRecognizerMixin on ScanPreviewStateDelegate {
 
   @override
   Future<void> processTextRecognizer(InputImage inputImage) async {
-    final OcrScanZonePainter? zonePainter = _config.scanZonePainter;
+    final ZonePainter? zonePainter = _config.zonePainter;
     if (zonePainter == null) return;
 
     /// Process image
