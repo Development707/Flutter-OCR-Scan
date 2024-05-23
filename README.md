@@ -4,12 +4,13 @@
 
 OCR scan library for Flutter. It can scan text from zones in preview.
 
-![Demo](./doc/demo.gif)
+|       ScanPreview       |        ScanFile         |
+| :---------------------: | :---------------------: |
+| ![Demo](./doc/demo_preview.gif) | ![Demo](./doc/demo_file.gif) |
 
 ## Requirements
 
 Since thus package uses [ML Kit](https://pub.dev/packages/google_mlkit_commons) check [requirements](https://github.com/bharat-biradar/Google-Ml-Kit-plugin#requirements) before running the package in project.
-
 
 ## How to use
 
