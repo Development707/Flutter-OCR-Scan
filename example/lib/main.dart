@@ -27,7 +27,7 @@ class _MainAppState extends State<MainApp> {
     zonePainter: ZonePainter(
       elements: [
         const Zone(
-          Rect.fromLTWH(0, 24, 1280, 200),
+          Rect.fromLTWH(0, 24, 720, 400),
           text: TextSpan(
             text: 'Zone: TextRecognizer',
             style: TextStyle(backgroundColor: Colors.red),
@@ -156,6 +156,7 @@ class _MainAppState extends State<MainApp> {
   Widget buildImage(BuildContext context) {
     return ScanFile(
       scanFile: File(image!.path),
+      previewSize: const Size(720, 1280),
       textRecognizerConfig: textRecognizerConfig,
       barcodeScannerConfig: barcodeScannerConfig,
     );

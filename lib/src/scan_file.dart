@@ -50,8 +50,8 @@ class ScanFileState extends ScanFileStateDelegate with FileMixin {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.fromSize(
-      size: widget.previewSize,
+    return AspectRatio(
+      aspectRatio: widget.previewSize.aspectRatio,
       child: Stack(
         fit: StackFit.expand,
         children: [
