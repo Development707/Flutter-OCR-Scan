@@ -97,45 +97,21 @@ class ZonePainter extends CustomPainter with ChangeNotifier {
       Zone element = elements.elementAt(index);
 
       /// Update element
-      final Rect boundingBox = element.boundingBox;
-      final Rect boundingPaint = Rect.fromLTRB(
-        translateX(
-          boundingBox.left,
-          size,
-          previewSize,
-          rotation,
-          cameraLensDirection,
-        ),
-        translateY(
-          boundingBox.top,
-          size,
-          previewSize,
-          rotation,
-          cameraLensDirection,
-        ),
-        translateX(
-          boundingBox.right,
-          size,
-          previewSize,
-          rotation,
-          cameraLensDirection,
-        ),
-        translateY(
-          boundingBox.bottom,
-          size,
-          previewSize,
-          rotation,
-          cameraLensDirection,
-        ),
+      final Rect boundingPaint = translateRect(
+        element.boundingBox,
+        size,
+        previewSize,
+        rotation,
+        cameraLensDirection,
       );
       elements[index] = element.copyWith(boundingPaint: boundingPaint);
       element = elements[index];
 
       /// Paint
+      paintBox(canvas, element);
       if (element.text != null) {
         paintText(canvas, element);
       }
-      paintBox(canvas, element);
     }
   }
 

@@ -2,15 +2,15 @@
 
 [![Pub Version](https://img.shields.io/pub/v/ocr_scan)](https://pub.dev/packages/ocr_scan)
 
-OCR scan library for Flutter. It can scan text from zones in preview.
+OCR scan library for Flutter. It can scan text, barcode, qr,... from zones in preview or file.
 
-|       ScanPreview       |        ScanFile         |
-| :---------------------: | :---------------------: |
+|           ScanPreview           |           ScanFile           |
+| :-----------------------------: | :--------------------------: |
 | ![Demo](./doc/demo_preview.gif) | ![Demo](./doc/demo_file.gif) |
 
 ## Requirements
 
-Since thus package uses [ML Kit](https://pub.dev/packages/google_mlkit_commons) check [requirements](https://github.com/bharat-biradar/Google-Ml-Kit-plugin#requirements) before running the package in project.
+Since thus package uses [ML Kit](https://pub.dev/packages/google_mlkit_commons) check [requirements](https://pub.dev/packages/google_mlkit_commons#requirements) before running the package in project.
 
 ## How to use
 
