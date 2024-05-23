@@ -58,11 +58,13 @@ class ScanPreview extends StatefulWidget {
 
 ///  scan preview state
 class ScanPreviewState extends ScanPreviewStateDelegate
-    with
-        WidgetsBindingObserver,
-        CameraMixin,
-        TextRecognizerMixin,
-        BarcodeScannerMixin {
+    with WidgetsBindingObserver, CameraMixin {
+  @override
+  TextRecognizerConfig get textRecognizerConfig => widget.textRecognizerConfig;
+
+  @override
+  BarcodeScannerConfig get barcodeConfig => widget.barcodeScannerConfig;
+
   /// Handling Lifecycle states
   /// https://pub.dev/packages/camera#handling-lifecycle-states
   @override
@@ -110,16 +112,11 @@ class ScanPreviewState extends ScanPreviewStateDelegate
 }
 
 ///  scan preview state delegate
-abstract class ScanPreviewStateDelegate extends State<ScanPreview> {
+abstract class ScanPreviewStateDelegate extends State<ScanPreview>
+    with TextRecognizerMixin, BarcodeScannerMixin {
   /// Controls a device camera.
   CameraController? get controller;
 
   /// Process image
   Future<void> processImage(CameraImage image);
-
-  /// Processes the given [InputImage] for text recognition.
-  Future<void> processTextRecognizer(InputImage inputImage);
-
-  /// Processes the given [InputImage] for barcode scanning.
-  Future<void> processBarcodeScanner(InputImage inputImage);
 }

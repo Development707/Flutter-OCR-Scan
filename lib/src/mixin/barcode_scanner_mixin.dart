@@ -25,14 +25,18 @@ class BarcodeScannerConfig {
 }
 
 /// Barcode scanner mixin.
-mixin BarcodeScannerMixin on ScanPreviewStateDelegate {
+mixin BarcodeScannerMixin<T extends StatefulWidget> on State<T> {
   BarcodeScanner? _barcodeScanner;
 
-  BarcodeScannerConfig get _config => widget.barcodeScannerConfig;
+  /// Barcode scanner config
+  BarcodeScannerConfig get barcodeConfig;
 
   /// A barcode scanner that scans and decodes barcodes from a given [InputImage].
   BarcodeScanner get barcodeScanner {
-    return _config.barcodeScanner ?? (_barcodeScanner ??= BarcodeScanner());
+    if (barcodeConfig.barcodeScanner == null) {
+      return (_barcodeScanner ??= BarcodeScanner());
+    }
+    return barcodeConfig.barcodeScanner!;
   }
 
   @override
@@ -41,77 +45,62 @@ mixin BarcodeScannerMixin on ScanPreviewStateDelegate {
     _barcodeScanner?.close();
   }
 
-  @override
-  Future<void> processBarcodeScanner(InputImage inputImage) async {
-    final ZonePainter? zonePainter = _config.zonePainter;
-    if (zonePainter == null) return;
+  /// Processes the given [InputImage] for barcode scanning.
+  Future<List<Barcode>?> processBarcodeScanner(InputImage inputImage) async {
+    final ZonePainter? zonePainter = barcodeConfig.zonePainter;
+    if (zonePainter == null) return null;
 
     /// Process image
     final result = await barcodeScanner.processImage(inputImage);
 
     /// Filter zones
-    if (_config.onBarcode != null) {
-      if (inputImage.metadata == null) return;
-      final Size imageSize = inputImage.metadata!.size;
-      final InputImageRotation rotation = inputImage.metadata!.rotation;
-
-      if (controller == null) return;
-      final cameraLensDirection = controller!.description.lensDirection;
-
+    if (barcodeConfig.onBarcode != null) {
       for (int i = 0; i < zonePainter.elements.length; i++) {
         final Zone zone = zonePainter.elements[i];
-        final Size zoneSize = switch (zonePainter.rotation) {
-          InputImageRotation.rotation0deg => zonePainter.previewSize,
-          InputImageRotation.rotation90deg => zonePainter.previewSize.flipped,
-          InputImageRotation.rotation180deg => zonePainter.previewSize,
-          InputImageRotation.rotation270deg => zonePainter.previewSize.flipped,
-        };
-        final List<Barcode> filtered = [];
+        final List<Barcode> filtered = filterBarcodes(
+          result,
+          zone,
+          inputImage.metadata?.size ?? Size.zero,
+          inputImage.metadata?.rotation ?? InputImageRotation.rotation0deg,
+        );
 
-        for (Barcode barcode in result) {
-          final Rect barcodeRect = Rect.fromLTRB(
-            translateX(
-              barcode.boundingBox.left,
-              zoneSize,
-              imageSize,
-              rotation,
-              cameraLensDirection,
-            ),
-            translateY(
-              barcode.boundingBox.top,
-              zoneSize,
-              imageSize,
-              rotation,
-              cameraLensDirection,
-            ),
-            translateX(
-              barcode.boundingBox.right,
-              zoneSize,
-              imageSize,
-              rotation,
-              cameraLensDirection,
-            ),
-            translateY(
-              barcode.boundingBox.bottom,
-              zoneSize,
-              imageSize,
-              rotation,
-              cameraLensDirection,
-            ),
-          );
-
-          if (barcodeRect.top < zone.boundingBox.top ||
-              barcodeRect.bottom > zone.boundingBox.bottom ||
-              barcodeRect.left < zone.boundingBox.left ||
-              barcodeRect.right > zone.boundingBox.right) {
-            continue;
-          }
-
-          filtered.add(barcode);
-        }
-
-        _config.onBarcode?.call((i, filtered));
+        barcodeConfig.onBarcode?.call((i, filtered));
       }
     }
+
+    return result;
+  }
+
+  /// Filter zone
+  List<Barcode> filterBarcodes(
+    List<Barcode> inputs,
+    Zone zone,
+    Size imageSize,
+    InputImageRotation imageRotation,
+  ) {
+    final ZonePainter? zonePainter = barcodeConfig.zonePainter;
+    if (zonePainter == null) return [];
+
+    final Size zoneSize = switch (zonePainter.rotation) {
+      InputImageRotation.rotation0deg => zonePainter.previewSize,
+      InputImageRotation.rotation90deg => zonePainter.previewSize.flipped,
+      InputImageRotation.rotation180deg => zonePainter.previewSize,
+      InputImageRotation.rotation270deg => zonePainter.previewSize.flipped,
+    };
+
+    return inputs.where((Barcode barcode) {
+      final Rect barcodeRect = translateRect(
+        barcode.boundingBox,
+        zoneSize,
+        imageSize,
+        imageRotation,
+        zonePainter.cameraLensDirection,
+      );
+
+      return barcodeRect.top >= zone.boundingBox.top &&
+          barcodeRect.bottom <= zone.boundingBox.bottom &&
+          barcodeRect.left >= zone.boundingBox.left &&
+          barcodeRect.right <= zone.boundingBox.right;
+    }).toList();
   }
 }

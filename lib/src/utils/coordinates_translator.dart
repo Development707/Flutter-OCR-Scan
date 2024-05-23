@@ -52,3 +52,21 @@ double translateY(
       return y * canvasSize.height / imageSize.height;
   }
 }
+
+/// Translates the rectangle based on the canvas size, image size, rotation, and camera lens direction.
+Rect translateRect(
+  Rect rect,
+  Size canvasSize,
+  Size imageSize,
+  InputImageRotation rotation,
+  CameraLensDirection cameraLensDirection,
+) {
+  return Rect.fromLTRB(
+    translateX(rect.left, canvasSize, imageSize, rotation, cameraLensDirection),
+    translateY(rect.top, canvasSize, imageSize, rotation, cameraLensDirection),
+    translateX(
+        rect.right, canvasSize, imageSize, rotation, cameraLensDirection),
+    translateY(
+        rect.bottom, canvasSize, imageSize, rotation, cameraLensDirection),
+  );
+}
