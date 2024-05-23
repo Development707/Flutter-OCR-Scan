@@ -84,6 +84,18 @@ class ScanPreviewState extends ScanPreviewStateDelegate
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final CameraController? controller = this.controller;
 
