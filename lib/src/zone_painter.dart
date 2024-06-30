@@ -85,12 +85,6 @@ class ZonePainter extends CustomPainter with ChangeNotifier {
   /// Image size
   late Size previewSize;
 
-  /// Configure
-  void configure(CameraController controller) {
-    cameraLensDirection = controller.description.lensDirection;
-    previewSize = controller.value.previewSize ?? Size.zero;
-  }
-
   @override
   void paint(Canvas canvas, Size size) {
     for (int index = 0; index < elements.length; index++) {

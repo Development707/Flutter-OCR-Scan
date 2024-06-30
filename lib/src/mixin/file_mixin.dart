@@ -1,7 +1,6 @@
 import 'dart:io' as io;
 import 'dart:ui' as ui;
 
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ocr_scan/ocr_scan.dart';
 
@@ -9,7 +8,8 @@ import 'package:ocr_scan/ocr_scan.dart';
 mixin FileMixin on ScanFileStateDelegate {
   bool _canProcess = true;
 
-  Size _imageSize = Size.zero;
+  @override
+  late ValueNotifier<Size> previewSize = ValueNotifier(widget.previewSize);
 
   @override
   Future<void> processImage(io.File file) async {
@@ -18,7 +18,7 @@ mixin FileMixin on ScanFileStateDelegate {
 
     /// Decode image get preview size
     ui.Image decodedImage = await decodeImageFromList(file.readAsBytesSync());
-    _imageSize = Size(
+    previewSize.value = Size(
       decodedImage.width.toDouble(),
       decodedImage.height.toDouble(),
     );
@@ -41,6 +41,9 @@ mixin FileMixin on ScanFileStateDelegate {
   @override
   void initState() {
     super.initState();
+    previewSize.addListener(() {
+      widget.onPreviewSizeChange?.call(previewSize.value);
+    });
     processImage(widget.scanFile);
   }
 
@@ -50,6 +53,12 @@ mixin FileMixin on ScanFileStateDelegate {
     if (oldWidget.scanFile != widget.scanFile) {
       processImage(widget.scanFile);
     }
+  }
+
+  @override
+  void dispose() {
+    previewSize.dispose();
+    super.dispose();
   }
 
   InputImage? _inputImageFromFile(io.File file) {
@@ -65,7 +74,12 @@ mixin FileMixin on ScanFileStateDelegate {
     ui.Size imageSize,
     InputImageRotation imageRotation,
   ) {
-    return super.filterTextLines(inputs, zone, _imageSize, imageRotation);
+    return super.filterTextLines(
+      inputs,
+      zone,
+      previewSize.value,
+      imageRotation,
+    );
   }
 
   @override
@@ -75,6 +89,11 @@ mixin FileMixin on ScanFileStateDelegate {
     ui.Size imageSize,
     InputImageRotation imageRotation,
   ) {
-    return super.filterBarcodes(inputs, zone, _imageSize, imageRotation);
+    return super.filterBarcodes(
+      inputs,
+      zone,
+      previewSize.value,
+      imageRotation,
+    );
   }
 }

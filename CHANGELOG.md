@@ -1,3 +1,8 @@
+## 0.2.2
+
+- Fix Handling Lifecycle states camera dispose
+- Add field `onPreviewSizeChange` to ScanFile
+
 ## 0.2.1
 
 - Support scan file image

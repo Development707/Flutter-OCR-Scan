@@ -65,6 +65,20 @@ class ScanPreviewState extends ScanPreviewStateDelegate
   @override
   BarcodeScannerConfig get barcodeConfig => widget.barcodeScannerConfig;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  bool _isDisposed = false;
+
   /// Handling Lifecycle states
   /// https://pub.dev/packages/camera#handling-lifecycle-states
   @override
@@ -78,22 +92,30 @@ class ScanPreviewState extends ScanPreviewStateDelegate
 
     if (state == AppLifecycleState.inactive) {
       cameraController.dispose();
+      _isDisposed = true;
     } else if (state == AppLifecycleState.resumed) {
       startLiveFeed(cameraController.description);
+      _isDisposed = false;
     }
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
+  Widget build(BuildContext context) {
+    if (_isDisposed) {
+      return const SizedBox.shrink();
+    }
+    return super.build(context);
   }
+}
 
-  @override
-  void dispose() {
-    super.dispose();
-    WidgetsBinding.instance.removeObserver(this);
-  }
+///  scan preview state delegate
+abstract class ScanPreviewStateDelegate extends State<ScanPreview>
+    with TextRecognizerMixin, BarcodeScannerMixin {
+  /// Controls a device camera.
+  CameraController? get controller;
+
+  /// Process image
+  Future<void> processImage(CameraImage image);
 
   @override
   Widget build(BuildContext context) {
@@ -110,25 +132,17 @@ class ScanPreviewState extends ScanPreviewStateDelegate
         children: [
           CustomPaint(
             painter: widget.textRecognizerConfig.zonePainter
-              ?..configure(controller),
+              ?..cameraLensDirection = controller.description.lensDirection
+              ..previewSize = controller.value.previewSize ?? Size.zero,
           ),
           CustomPaint(
             painter: widget.barcodeScannerConfig.zonePainter
-              ?..configure(controller),
+              ?..cameraLensDirection = controller.description.lensDirection
+              ..previewSize = controller.value.previewSize ?? Size.zero,
           ),
           ...?widget.children,
         ],
       ),
     );
   }
-}
-
-///  scan preview state delegate
-abstract class ScanPreviewStateDelegate extends State<ScanPreview>
-    with TextRecognizerMixin, BarcodeScannerMixin {
-  /// Controls a device camera.
-  CameraController? get controller;
-
-  /// Process image
-  Future<void> processImage(CameraImage image);
 }
