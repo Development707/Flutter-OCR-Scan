@@ -1,3 +1,42 @@
+ext {
+    minSdkVersion = 23
+    compileSdkVersion = 35
+    targetSdkVersion = 35
+    buildToolsVersion = "35.0.0"
+    javaVersion = JavaVersion.VERSION_1_8
+}
+
+// Override all subprojects' SDK version
+subprojects { subproject ->
+    afterEvaluate {
+        if (subproject.plugins.hasPlugin('android') || subproject.plugins.hasPlugin('android-library')) {
+            // Configure Android-specific settings
+            subproject.android {
+                namespace = namespace ?: subproject.group.toString()
+                compileSdkVersion rootProject.ext.compileSdkVersion
+                buildToolsVersion rootProject.ext.buildToolsVersion
+
+                compileOptions {
+                    sourceCompatibility = rootProject.ext.javaVersion
+                    targetCompatibility = rootProject.ext.javaVersion
+                }
+
+                defaultConfig {
+                    minSdkVersion rootProject.ext.minSdkVersion
+                    targetSdkVersion rootProject.ext.targetSdkVersion
+                }
+            }
+
+            // Configure Kotlin compilation tasks
+            subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                kotlinOptions {
+                    jvmTarget = rootProject.ext.javaVersion.toString().replace("VERSION_", "")
+                }
+            }
+        }
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -5,12 +44,12 @@ allprojects {
     }
 }
 
-rootProject.buildDir = '../build'
+rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
-    project.evaluationDependsOn(':app')
+    project.evaluationDependsOn(":app")
 }
 
 tasks.register("clean", Delete) {
